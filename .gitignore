@@ -10,3 +10,4 @@ docs/
 *.tar
 *.gz
 .idea
+mmapped_file.txt
