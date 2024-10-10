@@ -9,3 +9,4 @@ docs/
 *.zip
 *.tar
 *.gz
+.idea
