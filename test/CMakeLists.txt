@@ -19,6 +19,10 @@ endif()
 find_package(mimalloc 1.7 REQUIRED NO_SYSTEM_ENVIRONMENT_PATH)
 message(STATUS "Found mimalloc installed at: ${MIMALLOC_LIBRARY_DIR} (${MIMALLOC_VERSION_DIR})")
 
+# basic main
+add_executable(basic-main main.c)
+target_link_libraries(basic-main PUBLIC mimalloc)
+
 # overriding with a dynamic library
 add_executable(dynamic-override  main-override.c)
 target_link_libraries(dynamic-override PUBLIC mimalloc)

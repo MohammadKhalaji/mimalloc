@@ -461,7 +461,8 @@ message(STATUS "")
 
 # shared library
 if(MI_BUILD_SHARED)
-  add_library(mimalloc SHARED ${mi_sources})
+  add_library(mimalloc SHARED ${mi_sources}
+          test/test-basic.c)
   set_target_properties(mimalloc PROPERTIES VERSION ${mi_version} SOVERSION ${mi_version_major} OUTPUT_NAME ${mi_basename} )
   target_compile_definitions(mimalloc PRIVATE ${mi_defines} MI_SHARED_LIB MI_SHARED_LIB_EXPORT)
   target_compile_options(mimalloc PRIVATE ${mi_cflags} ${mi_cflags_dynamic})
@@ -577,7 +578,7 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/mimalloc.pc"
 if (MI_BUILD_TESTS)
   enable_testing()
 
-  foreach(TEST_NAME api api-fill stress)
+  foreach(TEST_NAME api api-fill stress basic)
     add_executable(mimalloc-test-${TEST_NAME} test/test-${TEST_NAME}.c)
     target_compile_definitions(mimalloc-test-${TEST_NAME} PRIVATE ${mi_defines})
     target_compile_options(mimalloc-test-${TEST_NAME} PRIVATE ${mi_cflags})
