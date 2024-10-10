@@ -33,16 +33,23 @@ int main() {
     p2 = mi_malloc(16);
     mi_free(p1);
     mi_free(p2);
+    printf("Done with the basic mi_malloc and mi_free\n");
 
     test_heap(mi_malloc(32));
 
+
+    printf("now allocating using malloc()\n"); 
+    void* osAllocated = (void*)malloc(sizeof(float));
+    printf("osAllocated: %p\n", osAllocated);
+
     p1 = mi_malloc_aligned(64, 16);
-    p2 = mi_malloc_aligned(160,24);
+    p2 = mi_malloc_aligned(160, 32);
     mi_free(p2);
     mi_free(p1);
+
     //test_large();
 
-    mi_collect(true);
-    mi_stats_print(NULL);
+    // mi_collect(true);
+    // mi_stats_print(NULL);
     return 0;
 }

@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "mimalloc.h": "c"
+    }, 
+    "command-runner.commands": {
+        "cmake-gui": {
+            "command": "cmake-gui",
+            "isShellCommand": true,
+            "problemMatcher": []
+        }
+    }
+}
