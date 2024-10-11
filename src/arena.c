@@ -755,7 +755,8 @@ bool _mi_arena_contains(const void* p) {
 
 static bool mi_arena_add(mi_arena_t* arena, mi_arena_id_t* arena_id, mi_stats_t* stats) {
   mi_assert_internal(arena != NULL);
-  mi_assert_internal((uintptr_t)mi_atomic_load_ptr_relaxed(uint8_t,&arena->start) % MI_SEGMENT_ALIGN == 0);
+  uintptr_t _start = (uintptr_t)mi_atomic_load_ptr_relaxed(uint8_t,&arena->start); 
+  mi_assert_internal(_start % MI_SEGMENT_ALIGN == 0);
   mi_assert_internal(arena->block_count > 0);
   if (arena_id != NULL) { *arena_id = -1; }
 

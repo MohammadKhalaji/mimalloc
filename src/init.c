@@ -600,6 +600,7 @@ static void mi_detect_cpu_features(void) {
 
 // Initialize the process; called by thread_init or the process loader
 void mi_process_init(void) mi_attr_noexcept {
+  _mi_verbose_message("process init top: 0x%zx\n", _mi_thread_id());
   // ensure we are called once
   static mi_atomic_once_t process_init;
 	#if _MSC_VER < 1920
