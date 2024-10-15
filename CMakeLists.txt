@@ -583,7 +583,7 @@ install(FILES "${CMAKE_CURRENT_BINARY_DIR}/mimalloc.pc"
 if (MI_BUILD_TESTS)
   enable_testing()
 
-  foreach(TEST_NAME api api-fill stress basic mmap)
+  foreach(TEST_NAME api api-fill stress basic mmap new-mmap)
     add_executable(mimalloc-test-${TEST_NAME} test/test-${TEST_NAME}.c)
     target_compile_definitions(mimalloc-test-${TEST_NAME} PRIVATE ${mi_defines})
     target_compile_options(mimalloc-test-${TEST_NAME} PRIVATE ${mi_cflags})
