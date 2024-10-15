@@ -82,9 +82,6 @@ endif()
 
 # if debug 
 if("${CMAKE_BUILD_TYPE}" MATCHES ".*(D|d)ebug$")
-  # add a bunch of flags to mi_cflags
-  message(STATUS "Turning MI_OVERRIDE OFF in DEBUG mode")
-  set(MI_OVERRIDE OFF)
   list(APPEND mi_cflags -g -O0 -fno-omit-frame-pointer)
 endif()
 

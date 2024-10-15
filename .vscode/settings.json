@@ -3,11 +3,7 @@
         "mimalloc.h": "c",
         "mman.h": "c"
     }, 
-    "command-runner.commands": {
-        "cmake-gui": {
-            "command": "cmake-gui",
-            "isShellCommand": true,
-            "problemMatcher": []
-        }
-    }
+    "cmake.configureArgs": [
+        "-DMI_OVERRIDE=OFF",
+    ]
 }
