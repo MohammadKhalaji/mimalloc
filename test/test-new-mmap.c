@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -44,7 +45,7 @@ int main() {
 
     // MMAP THE FILE
     addr = mmap(NULL, total_pmem_size, PROT_READ | PROT_WRITE,
-                MAP_SYNC | MAP_SHARED_VALIDATE | MAP_32BIT, fd, 0);
+                MAP_SYNC | MAP_SHARED_VALIDATE, fd, 0);
     if (addr == MAP_FAILED) {
         perror("Error mmapping the file");
         return 1;
@@ -53,13 +54,18 @@ int main() {
 
 
     uintptr_t start = (uintptr_t)addr;
+
+    start = (start + MI_SEGMENT_ALIGN - 1) & ~(MI_SEGMENT_ALIGN - 1);
+    uintptr_t end = start + total_pmem_size;
+    end = end & ~(MI_SEGMENT_ALIGN - 1);
+
     if (start % MI_SEGMENT_ALIGN != 0) {
         printf("start is not aligned to MI_SEGMENT_ALIGN\n");
         return 1;
     }
 
 
-    bool ret = mi_manage_os_memory((void*)addr, total_pmem_size, false, false,
+    bool ret = mi_manage_os_memory((void*)start, (size_t)end - (size_t)start, false, false,
                                    false, -1);
 
     printf("mi_manage_os_memory returned %d\n", ret);
