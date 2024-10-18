@@ -21,7 +21,7 @@ void* thread_func(const int tid) {
         garbage += i / 2;
     }
     printf("Thread=%d, defaultHeap=%p\n", tid, defaultHeap);
-    for (int i = 0; i < 100; i++) { 
+    for (int i = 0; i < 10; i++) { 
         void *p = mi_malloc(2240);
         printf("Thread=%d, allocated=%p\n", tid, p);
     }
@@ -44,12 +44,22 @@ int main() {
 
     // MMAP THE FILE
     addr = mmap(0, total_pmem_size, PROT_READ | PROT_WRITE,
-                MAP_SYNC | MAP_SHARED_VALIDATE, fd, 0);
-
+                MAP_SYNC | MAP_SHARED_VALIDATE | MAP_32BIT, fd, 0);
+    if (addr == MAP_FAILED) {
+        perror("Error mmapping the file");
+        return 1;
+    }
     printf("Start of the file: %p\n", addr); 
 
 
-    bool ret = mi_manage_os_memory((void*)addr, total_pmem_size, true, false,
+    uintptr_t start = (uintptr_t)addr;
+    if (start % MI_SEGMENT_ALIGN != 0) {
+        printf("start is not aligned to MI_SEGMENT_ALIGN\n");
+        return 1;
+    }
+
+
+    bool ret = mi_manage_os_memory((void*)addr, total_pmem_size, false, false,
                                    false, -1);
 
     printf("mi_manage_os_memory returned %d\n", ret);
