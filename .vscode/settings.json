@@ -5,5 +5,15 @@
     }, 
     "cmake.configureArgs": [
         "-DMI_OVERRIDE=OFF",
-    ]
+    ],
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.loggingLevel": "Debug", 
+    "C_Cpp.intelliSenseEngine": "disabled", 
+    "clangd.path": "clangd-12", 
+    "clangd.arguments": ["-log=verbose", 
+                         "-pretty", 
+                         "--background-index", 
+                         "--compile-commands-dir=/home/mkhalaji/repos/mimalloc/out/"], 
+    "cmake.copyCompileCommands": "${workspaceFolder}/out/compile_commands.json",
+
 }
