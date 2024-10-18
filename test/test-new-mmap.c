@@ -43,7 +43,7 @@ int main() {
     ftruncate(fd, total_pmem_size);
 
     // MMAP THE FILE
-    addr = mmap(0, total_pmem_size, PROT_READ | PROT_WRITE,
+    addr = mmap(NULL, total_pmem_size, PROT_READ | PROT_WRITE,
                 MAP_SYNC | MAP_SHARED_VALIDATE | MAP_32BIT, fd, 0);
     if (addr == MAP_FAILED) {
         perror("Error mmapping the file");
