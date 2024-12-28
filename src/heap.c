@@ -166,7 +166,7 @@ static void mi_heap_collect_ex(mi_heap_t* heap, mi_collect_t collect)
   }
 
   // collect arenas (this is program wide so don't force purges on abandonment of threads)
-  _mi_arenas_collect(collect == MI_FORCE /* force purge? */, &heap->tld->stats);
+  _mi_arenas_collect(collect == MI_FORCE /* force purge? */);
 }
 
 void _mi_heap_collect_abandon(mi_heap_t* heap) {
@@ -221,6 +221,7 @@ void _mi_heap_init(mi_heap_t* heap, mi_tld_t* tld, mi_arena_id_t arena_id, bool 
   heap->cookie  = _mi_heap_random_next(heap) | 1;
   heap->keys[0] = _mi_heap_random_next(heap);
   heap->keys[1] = _mi_heap_random_next(heap);
+  _mi_heap_guarded_init(heap);
   // push on the thread local heaps list
   heap->next = heap->tld->heaps;
   heap->tld->heaps = heap;
@@ -369,8 +370,8 @@ void mi_heap_destroy(mi_heap_t* heap) {
   mi_assert(heap->no_reclaim);
   mi_assert_expensive(mi_heap_is_valid(heap));
   if (heap==NULL || !mi_heap_is_initialized(heap)) return;
-  #if MI_DEBUG_GUARDED
-  _mi_warning_message("'mi_heap_destroy' called but ignored as MI_DEBUG_GUARDED is enabled (heap at %p)\n", heap);
+  #if MI_GUARDED
+  // _mi_warning_message("'mi_heap_destroy' called but MI_GUARDED is enabled -- using `mi_heap_delete` instead (heap at %p)\n", heap);
   mi_heap_delete(heap);
   return;
   #else
@@ -445,6 +446,12 @@ static void mi_heap_absorb(mi_heap_t* heap, mi_heap_t* from) {
   mi_heap_reset_pages(from);
 }
 
+// are two heaps compatible with respect to heap-tag, exclusive arena etc.
+static bool mi_heaps_are_compatible(mi_heap_t* heap1, mi_heap_t* heap2) {
+  return (heap1->tag == heap2->tag &&                   // store same kind of objects
+          heap1->arena_id == heap2->arena_id);          // same arena preference
+}
+
 // Safe delete a heap without freeing any still allocated blocks in that heap.
 void mi_heap_delete(mi_heap_t* heap)
 {
@@ -453,9 +460,10 @@ void mi_heap_delete(mi_heap_t* heap)
   mi_assert_expensive(mi_heap_is_valid(heap));
   if (heap==NULL || !mi_heap_is_initialized(heap)) return;
 
-  if (!mi_heap_is_backing(heap)) {
+  mi_heap_t* bheap = heap->tld->heap_backing;
+  if (bheap != heap && mi_heaps_are_compatible(bheap,heap)) {
     // transfer still used pages to the backing heap
-    mi_heap_absorb(heap->tld->heap_backing, heap);
+    mi_heap_absorb(bheap, heap);
   }
   else {
     // the backing heap abandons its pages
@@ -543,13 +551,14 @@ void _mi_heap_area_init(mi_heap_area_t* area, mi_page_t* page) {
 
 static void mi_get_fast_divisor(size_t divisor, uint64_t* magic, size_t* shift) {
   mi_assert_internal(divisor > 0 && divisor <= UINT32_MAX);
-  *shift = 64 - mi_clz(divisor - 1);
+  *shift = MI_INTPTR_BITS - mi_clz(divisor - 1);
   *magic = ((((uint64_t)1 << 32) * (((uint64_t)1 << *shift) - divisor)) / divisor + 1);
 }
 
 static size_t mi_fast_divide(size_t n, uint64_t magic, size_t shift) {
   mi_assert_internal(n <= UINT32_MAX);
-  return ((((uint64_t)n * magic) >> 32) + n) >> shift;
+  const uint64_t hi = ((uint64_t)n * magic) >> 32;
+  return (size_t)((hi + n) >> shift);
 }
 
 bool _mi_heap_area_visit_blocks(const mi_heap_area_t* area, mi_page_t* page, mi_block_visit_fun* visitor, void* arg) {
