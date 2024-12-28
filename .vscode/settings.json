@@ -1,0 +1,10 @@
+{
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "cmake.copyCompileCommands": "${workspaceFolder}/out/compile_commands.json",
+    "clangd.path": "clangd",
+    "clangd.arguments": [
+        "--compile-commands-dir=/home/mohammad/repos/mimalloc/out",
+        "-pretty",
+        "-log=verbose"
+    ],
+}
